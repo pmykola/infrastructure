@@ -1,0 +1,34 @@
+version: '2'
+services:
+  logstash:
+    image: logstash
+    ports:
+      - "12201:12201/udp"
+      - "5044:5044"
+    volumes:
+      - ./logstash/logstash.conf:/config-dir/logstash.conf
+    links:
+      - elasticsearch:elasticsearch
+    command: logstash -f /config-dir/logstash.conf
+  kibana:
+    image: kibana
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch:elasticsearch
+  elasticsearch:
+    image: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - "ES_JAVA_OPTS=-Xmx2g -Xms2g"
+  plop:
+    image: alpine
+    logging:
+      driver: gelf
+      options:
+        gelf-address: udp://localhost:12201
+        tag: "staging"
+    links:
+      - logstash:logstash
+    command: /bin/sh -c "while true; do echo My Message `date`; sleep 1; done;"
