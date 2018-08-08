@@ -1,6 +1,6 @@
 ## infrastructure
 
-## configure docker to log to ELK
+### configure docker to log to ELK
 
 ```bash
   service1:
